@@ -64,7 +64,7 @@ const login = async (req, res = response) => {
 
 
 const register = async (req, res = response) => {
-    const { nombre, correo, password, rol } = req.body;
+    const { nombre, correo, password, rol, pais } = req.body;
 
     try {
         // Verificar si el correo ya existe
@@ -91,6 +91,7 @@ const register = async (req, res = response) => {
             correo,
             password: passwordEncriptada,
             rol: rol || 'USER_ROLE',
+            pais: pais || null,
             estado: true,
         });
 
@@ -105,6 +106,7 @@ const register = async (req, res = response) => {
                 nombre: nuevoUsuario.nombre,
                 correo: nuevoUsuario.correo,
                 rol: nuevoUsuario.rol,
+                pais: nuevoUsuario.pais,
             },
             token,
         });
@@ -129,10 +131,10 @@ const getProfile = async (req, res = response) => {
                 nombre: usuario.nombre,
                 correo: usuario.correo,
                 rol: usuario.rol,
+                pais: usuario.pais,
                 img: usuario.img,
                 estado: usuario.estado,
             },
-        });
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -144,7 +146,7 @@ const getProfile = async (req, res = response) => {
 };
 
 const updateProfile = async (req, res = response) => {
-    const { nombre, correo, img, rol } = req.body;
+    const { nombre, correo, img, rol, pais } = req.body;
     const usuario = req.usuario; // Del middleware JWT
 
     try {
@@ -168,6 +170,7 @@ const updateProfile = async (req, res = response) => {
                 correo: correo || usuario.correo,
                 img: img !== undefined ? img : usuario.img,
                 rol: rol || usuario.rol,
+                pais: pais !== undefined ? pais : usuario.pais,
             },
             {
                 where: { id: usuario.id },

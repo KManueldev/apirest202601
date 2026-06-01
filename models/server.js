@@ -9,6 +9,10 @@ require('../models/mySqlHeroes');
 require('../models/mySqlPeliculas');
 require('../models/mySqlProtagonista')
 require('../models/mySqlQRLectura');
+require('../models/mySqlLamina');
+require('../models/mySqlColeccion');
+require('../models/mySqlIntercambio');
+require('../models/mySqlPropuestaIntercambio');
 
 //const { dbConnectionMongo } = require('../database/MongoConnection');
 
@@ -25,6 +29,8 @@ class Server {
             heroes: '/api/heroes',
             peliculas: '/api/peliculas',
             qrLecturas: '/api/qr-lecturas',
+            album: '/api/album',
+            intercambios: '/api/intercambios',
         }
             
         //this.pathsMongo = {
@@ -127,6 +133,8 @@ class Server {
         this.app.use(this.pathsMySql.auth, require('../routes/auth.route'));
         this.app.use(this.pathsMySql.heroes, require('../routes/heroes.route'));
         this.app.use(this.pathsMySql.qrLecturas,require('../routes/qrLectura.route'));
+        this.app.use(this.pathsMySql.album, require('../routes/album.route'));
+        this.app.use(this.pathsMySql.intercambios, require('../routes/intercambios.route'));
         //this.app.use(this.pathsMongo.usuarios, require('../routes/mongoUsuario.route'));
 
         //Activo la ruta del login

@@ -30,6 +30,10 @@ const Usuario = bdmysql.define('Usuario', {
         allowNull: true,
         defaultValue: 'USER_ROLE',
     },
+    pais: {
+        type: DataTypes.STRING(80),
+        allowNull: true,
+    },
     estado: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
