@@ -21,7 +21,8 @@ const getAlbum = async (req, res = response) => {
                 l.estatura_cm,
                 l.peso_kg,
                 l.iso3,
-                p.grupo
+                p.grupo,
+                p.pais AS pais
             FROM laminas_panini_2026 l
             LEFT JOIN paises_mundial_2026 p ON l.iso3 = p.iso3
             ORDER BY l.id ASC
@@ -48,6 +49,7 @@ const getAlbum = async (req, res = response) => {
             peso_kg: lamina.peso_kg,
             iso3: lamina.iso3,
             grupo: lamina.grupo,
+            pais: lamina.pais,
             posee: laminasPoseidas.includes(lamina.id),
             color: laminasPoseidas.includes(lamina.id) ? 'verde' : 'gris',
         }));
