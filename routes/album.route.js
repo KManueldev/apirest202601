@@ -2,6 +2,7 @@ const { Router } = require('express');
 const { validarJWT } = require('../middlewares/validar-jwt');
 const {
     getAlbum,
+    getAlbumGroup,
     getProgreso,
     getColeccion,
     addLamina,
@@ -15,6 +16,9 @@ const router = Router();
 
 // Obtener todas las láminas del mundial cruzadas con el inventario del usuario
 router.get('/laminas', validarJWT, getAlbum);
+
+// Obtener todas las láminas para un solo grupo
+router.get('/grupo/:letter', validarJWT, getAlbumGroup);
 
 // Obtener progreso del usuario en el álbum
 router.get('/progreso', validarJWT, getProgreso);

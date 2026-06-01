@@ -1,4 +1,5 @@
 const { response } = require('express');
+const { QueryTypes } = require('sequelize');
 const LaminasPanini = require('../models/mySqlLamina');
 const Coleccion = require('../models/mySqlColeccion');
 const Intercambio = require('../models/mySqlIntercambio');
@@ -6,10 +7,10 @@ const Intercambio = require('../models/mySqlIntercambio');
 const getAlbum = async (req, res = response) => {
     const usuario = req.usuario;
     try {
-        const { sequelize } = require('../database/MySqlConnection');
+        const { bdmysql } = require('../database/MySqlConnection');
         
         // Query con JOIN para obtener el grupo desde paises_mundial_2026
-        const laminas = await sequelize.query(`
+        const laminas = await bdmysql.query(`
             SELECT 
                 l.id,
                 l.nombre_sticker,
@@ -26,7 +27,7 @@ const getAlbum = async (req, res = response) => {
             FROM laminas_panini_2026 l
             LEFT JOIN paises_mundial_2026 p ON l.iso3 = p.iso3
             ORDER BY l.id ASC
-        `, { type: sequelize.QueryTypes.SELECT });
+        `, { type: QueryTypes.SELECT });
         
         // Obtener todas las láminas que el usuario posee
         const coleccionUsuario = await Coleccion.findAll({
@@ -58,6 +59,69 @@ const getAlbum = async (req, res = response) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ ok: false, msg: 'Error obteniendo el álbum', error: error.message });
+    }
+};
+
+const getAlbumGroup = async (req, res = response) => {
+    const usuario = req.usuario;
+    const letter = (req.params.letter || '').toString().trim().toUpperCase();
+
+    if (!letter.match(/^[A-L]$/)) {
+        return res.status(400).json({ ok: false, msg: 'Letra de grupo inválida' });
+    }
+
+    try {
+        const { bdmysql } = require('../database/MySqlConnection');
+        const laminas = await bdmysql.query(`
+            SELECT 
+                l.id,
+                l.nombre_sticker,
+                l.foto_url,
+                l.equipo_actual,
+                l.posicion,
+                l.es_especial,
+                l.fecha_nacimiento,
+                l.estatura_cm,
+                l.peso_kg,
+                l.iso3,
+                p.grupo,
+                p.pais AS pais
+            FROM laminas_panini_2026 l
+            LEFT JOIN paises_mundial_2026 p ON l.iso3 = p.iso3
+            WHERE UPPER(TRIM(p.grupo)) = :letter
+            ORDER BY p.pais ASC, l.id ASC
+        `, {
+            replacements: { letter },
+            type: QueryTypes.SELECT,
+        });
+
+        const coleccionUsuario = await Coleccion.findAll({
+            where: { usuario_id: usuario.id, estado: 'poseida' },
+            attributes: ['lamina_id'],
+        });
+        const laminasPoseidas = coleccionUsuario.map(c => c.lamina_id);
+
+        const album = laminas.map(lamina => ({
+            id: lamina.id,
+            nombre_sticker: lamina.nombre_sticker,
+            foto_url: lamina.foto_url,
+            equipo_actual: lamina.equipo_actual,
+            posicion: lamina.posicion,
+            es_especial: lamina.es_especial,
+            fecha_nacimiento: lamina.fecha_nacimiento,
+            estatura_cm: lamina.estatura_cm,
+            peso_kg: lamina.peso_kg,
+            iso3: lamina.iso3,
+            grupo: lamina.grupo,
+            pais: lamina.pais,
+            posee: laminasPoseidas.includes(lamina.id),
+            color: laminasPoseidas.includes(lamina.id) ? 'verde' : 'gris',
+        }));
+
+        res.json({ ok: true, grupo: letter, data: album });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ ok: false, msg: 'Error obteniendo el grupo', error: error.message });
     }
 };
 
@@ -244,6 +308,7 @@ const getIntercambiosInfo = async (req, res = response) => {
 
 module.exports = {
     getAlbum,
+    getAlbumGroup,
     getProgreso,
     getColeccion,
     addLamina,
