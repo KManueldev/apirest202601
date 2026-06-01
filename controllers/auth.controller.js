@@ -135,6 +135,7 @@ const getProfile = async (req, res = response) => {
                 img: usuario.img,
                 estado: usuario.estado,
             },
+        });
     } catch (error) {
         console.log(error);
         return res.status(500).json({
