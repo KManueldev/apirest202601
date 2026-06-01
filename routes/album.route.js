@@ -18,7 +18,7 @@ const router = Router();
 router.get('/laminas', validarJWT, getAlbum);
 
 // Obtener todas las láminas para un solo grupo
-router.get('/grupo/:letter', validarJWT, getAlbumGroup);
+router.get('/grupo/:letter', getAlbumGroup);
 
 // Obtener progreso del usuario en el álbum
 router.get('/progreso', validarJWT, getProgreso);
