@@ -61,6 +61,10 @@ class Server {
         //Routes
         this.routes();
 
+        this.app.get('/api/album/debug', (req, res) => {
+            res.json({ ok: true, msg: 'API album route loaded' });
+        });
+
     }
 
 
@@ -140,6 +144,10 @@ class Server {
         //Activo la ruta del login
         //this.app.use(this.pathsMongo.auth, require('../routes/auth.route'));
         
+        // Ruta de diagnóstico temporal para comprobar despliegue
+        this.app.get('/api/album/debug', (req, res) => {
+            res.json({ ok: true, msg: 'album route active', url: req.originalUrl, host: req.hostname });
+        });
     }
     
 
