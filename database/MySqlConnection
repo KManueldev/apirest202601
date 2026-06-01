@@ -9,7 +9,13 @@ const bdmysql = new Sequelize(
     port: process.env.MYSQL_PORT,
     dialect: 'mysql',
     dialectOptions: {
-      connectTimeout: 60000
+      connectTimeout: 60000,
+      ssl: (() => {
+        const mysqlHost = process.env.MYSQL_HOST || '';
+        return (process.env.MYSQL_SSL === 'true' || mysqlHost.includes('railway') || mysqlHost.includes('proxy.rlwy.net'))
+          ? { rejectUnauthorized: false }
+          : undefined;
+      })(),
     },
     pool: {
       max: 5,
