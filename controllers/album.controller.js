@@ -6,7 +6,26 @@ const Intercambio = require('../models/mySqlIntercambio');
 const getAlbum = async (req, res = response) => {
     const usuario = req.usuario;
     try {
-        const laminas = await LaminasPanini.findAll({ order: [['id', 'ASC']] });
+        const { sequelize } = require('../database/MySqlConnection');
+        
+        // Query con JOIN para obtener el grupo desde paises_mundial_2026
+        const laminas = await sequelize.query(`
+            SELECT 
+                l.id,
+                l.nombre_sticker,
+                l.foto_url,
+                l.equipo_actual,
+                l.posicion,
+                l.es_especial,
+                l.fecha_nacimiento,
+                l.estatura_cm,
+                l.peso_kg,
+                l.iso3,
+                p.grupo
+            FROM laminas_panini_2026 l
+            LEFT JOIN paises_mundial_2026 p ON l.iso3 = p.iso3
+            ORDER BY l.id ASC
+        `, { type: sequelize.QueryTypes.SELECT });
         
         // Obtener todas las láminas que el usuario posee
         const coleccionUsuario = await Coleccion.findAll({
@@ -28,6 +47,7 @@ const getAlbum = async (req, res = response) => {
             estatura_cm: lamina.estatura_cm,
             peso_kg: lamina.peso_kg,
             iso3: lamina.iso3,
+            grupo: lamina.grupo,
             posee: laminasPoseidas.includes(lamina.id),
             color: laminasPoseidas.includes(lamina.id) ? 'verde' : 'gris',
         }));
